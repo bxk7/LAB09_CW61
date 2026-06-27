@@ -10,6 +10,7 @@ env:
   DOTNET_VERSION: 10.0.x
   APP_PROJECT: ./Lab09_PackagedApp_Fresh.csproj
   TEST_PROJECT: ./Lab09_PackagedApp_Fresh.Tests/Lab09_PackagedApp_Fresh.Tests.csproj
+  RID: win-x64
 
 jobs:
   build:
@@ -25,19 +26,19 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Restore app
-        run: dotnet restore ${{ env.APP_PROJECT }}
+        run: dotnet restore ${{ env.APP_PROJECT }} -r ${{ env.RID }}
 
       - name: Restore tests
         run: dotnet restore ${{ env.TEST_PROJECT }}
 
       - name: Build app
-        run: dotnet build ${{ env.APP_PROJECT }} --configuration Release --no-restore
+        run: dotnet build ${{ env.APP_PROJECT }} --configuration Release -r ${{ env.RID }} --no-restore
 
       - name: Test with coverage
-        run: dotnet test ${{ env.TEST_PROJECT }} --configuration Release --no-restore --collect "XPlat Code Coverage" --results-directory .coverage
+        run: dotnet test ${{ env.TEST_PROJECT }} --configuration Release --collect "XPlat Code Coverage" --results-directory .coverage
 
       - name: Publish
-        run: dotnet publish ${{ env.APP_PROJECT }} --configuration Release --runtime win-x64 --output .publish
+        run: dotnet publish ${{ env.APP_PROJECT }} --configuration Release -r ${{ env.RID }} --no-build --output .publish
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
