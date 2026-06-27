@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Lab09_PackagedApp_Fresh (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Lab09_PackagedApp_Fresh (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
