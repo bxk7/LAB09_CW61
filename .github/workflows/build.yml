@@ -8,9 +8,7 @@ on:
 
 env:
   DOTNET_VERSION: 10.0.x
-  APP_PROJECT: ./Lab09_PackagedApp_Fresh.csproj
-  TEST_PROJECT: ./Lab09_PackagedApp_Fresh.Tests/Lab09_PackagedApp_Fresh.Tests.csproj
-  RID: win-x64
+  PROJECT_PATH: Lab09_PackagedApp_Fresh
 
 jobs:
   build:
@@ -25,41 +23,26 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Restore app
-        run: dotnet restore ${{ env.APP_PROJECT }} -r ${{ env.RID }}
+      - name: Restore
+        run: dotnet restore ${{ env.PROJECT_PATH }}
 
-      - name: Restore tests
-        run: dotnet restore ${{ env.TEST_PROJECT }}
-
-      - name: Build app
-        run: dotnet build ${{ env.APP_PROJECT }} --configuration Release -r ${{ env.RID }} --no-restore
+      - name: Build
+        run: dotnet build ${{ env.PROJECT_PATH }} --configuration Release --no-restore
 
       - name: Test with coverage
-        run: >
-          dotnet test ${{ env.TEST_PROJECT }}
-          --configuration Release
-          --no-build
-          --collect:"XPlat Code Coverage;Format=Cobertura"
-          --results-directory "${{ github.workspace }}/coverage"
+        run: dotnet test .\Lab09_PackagedApp_Fresh.Tests --configuration Release --collect "XPlat Code Coverage" --results-directory .coverage
 
       - name: Publish
-        run: >
-          dotnet publish ${{ env.APP_PROJECT }}
-          --configuration Release
-          -r ${{ env.RID }}
-          --no-build
-          --output "${{ github.workspace }}/publish"
+        run: dotnet publish ${{ env.PROJECT_PATH }} --configuration Release --runtime win-x64 --output .publish
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-build
-          path: ${{ github.workspace }}/publish
-          if-no-files-found: error
+          path: .publish
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: ${{ github.workspace }}/coverage/**/coverage.cobertura.xml
-          if-no-files-found: error
+          path: .coverage\**\coverage.cobertura.xml
