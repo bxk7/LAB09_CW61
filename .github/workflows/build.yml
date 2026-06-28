@@ -35,19 +35,31 @@ jobs:
         run: dotnet build ${{ env.APP_PROJECT }} --configuration Release -r ${{ env.RID }} --no-restore
 
       - name: Test with coverage
-        run: dotnet test ${{ env.TEST_PROJECT }} --configuration Release --collect "XPlat Code Coverage" --results-directory .coverage
+        run: >
+          dotnet test ${{ env.TEST_PROJECT }}
+          --configuration Release
+          --no-build
+          --collect:"XPlat Code Coverage;Format=Cobertura"
+          --results-directory "${{ github.workspace }}/coverage"
 
       - name: Publish
-        run: dotnet publish ${{ env.APP_PROJECT }} --configuration Release -r ${{ env.RID }} --no-build --output .publish
+        run: >
+          dotnet publish ${{ env.APP_PROJECT }}
+          --configuration Release
+          -r ${{ env.RID }}
+          --no-build
+          --output "${{ github.workspace }}/publish"
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-build
-          path: .publish
+          path: ${{ github.workspace }}/publish
+          if-no-files-found: error
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: .coverage/**/coverage.cobertura.xml
+          path: ${{ github.workspace }}/coverage/**/coverage.cobertura.xml
+          if-no-files-found: error
