@@ -8,7 +8,8 @@ on:
 
 env:
   DOTNET_VERSION: 10.0.x
-  PROJECT_PATH: Lab09_PackagedApp_Fresh
+  PROJECT_PATH: ./Lab09_PackagedApp_Fresh.csproj
+  TEST_PROJECT: ./Lab09_PackagedApp_Fresh.Tests/Lab09_PackagedApp_Fresh.Tests.csproj
 
 jobs:
   build:
@@ -30,19 +31,7 @@ jobs:
         run: dotnet build ${{ env.PROJECT_PATH }} --configuration Release --no-restore
 
       - name: Test with coverage
-        run: dotnet test .\Lab09_PackagedApp_Fresh.Tests --configuration Release --collect "XPlat Code Coverage" --results-directory .coverage
+        run: dotnet test ${{ env.TEST_PROJECT }} --configuration Release --no-build --collect "XPlat Code Coverage"
 
       - name: Publish
-        run: dotnet publish ${{ env.PROJECT_PATH }} --configuration Release --runtime win-x64 --output .publish
-
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-build
-          path: .publish
-
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: .coverage\**\coverage.cobertura.xml
+        run: dotnet publish ${{ env.PROJECT_PATH }} --configuration Release --runtime win-x64 --no-build --output .publish
